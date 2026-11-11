@@ -7,11 +7,13 @@ import { fileURLToPath } from 'node:url';
 const root = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(root, 'dist');
 const tscBin = path.join(root, 'node_modules', 'typescript', 'bin', 'tsc');
+const vitestBin = path.join(root, 'node_modules', 'vitest', 'vitest.mjs');
 
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 
 execFileSync(process.execPath, [tscBin, '--noEmit'], { cwd: root, stdio: 'inherit' });
+execFileSync(process.execPath, [vitestBin, 'run'], { cwd: root, stdio: 'inherit' });
 
 await build({
   entryPoints: [path.join(root, 'src', 'main.ts')],

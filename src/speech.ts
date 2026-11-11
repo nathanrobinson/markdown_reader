@@ -60,7 +60,7 @@ export const speakable = (tok: string): string => {
   let s = tok;
   for (const [re, rep] of PRONUNCIATIONS) s = s.replace(re, rep);
   for (const [re, rep] of SYMBOL_RULES) s = s.replace(re, rep);
-  return s;
+  return s.trim();
 };
 
 const sameLang = (lang: string, target: string): boolean =>

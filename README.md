@@ -23,8 +23,19 @@ A static page that renders markdown as collapsible sections and reads it aloud w
 ```sh
 npm install
 npm run typecheck   # TypeScript type check only
-npm run build       # type check, then bundle into dist/
+npm test            # unit tests
+npm run build       # type check, run tests, then bundle into dist/
 ```
+
+The build stops if the type check or any test fails.
+
+## Tests
+
+Tests live in `tests/` and run with [Vitest](https://vitest.dev) in a jsdom environment:
+
+- `markdown.test.ts`: section nesting, inline formatting, escaping, code, lists, blockquotes, and tables.
+- `speech.test.ts`: word wrapping, play and pause, the space bar, word selection, voice and speed controls, and pronunciation rules. Speech synthesis is replaced with a fake.
+- `themes.test.ts`: color token coverage and theme application.
 
 Open `dist/index.html` in a browser after a build.
 
