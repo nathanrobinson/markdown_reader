@@ -263,10 +263,7 @@ export class SpeechReader {
     if (!w || w.closest('summary')) return;
     this.current = Number(w.dataset.i);
     this.highlight(this.current);
-    if (this.active) {
-      this.speakFrom(this.current);
-      this.setPlaying(true);
-    }
+    this.restart();
   }
 
   private populateVoices(): void {
