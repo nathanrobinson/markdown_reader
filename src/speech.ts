@@ -9,7 +9,13 @@ export interface SpeechControls {
 interface WordEntry {
   el: HTMLSpanElement;
   spoken: string;
-  pause: boolean;
+}
+
+type Pause = 'sentence' | 'clause' | null;
+
+interface Occurrence {
+  word: number;
+  pause: Pause;
   start: number;
 }
 
@@ -63,11 +69,19 @@ export const speakable = (tok: string): string => {
   return s.trim();
 };
 
+const separatorAfter = (spoken: string, pause: Pause): string => {
+  if (pause === null) return ' ';
+  if (/[.!?:;,]$/.test(spoken.trim())) return ' ';
+  return pause === 'sentence' ? '. ' : ', ';
+};
+
 const sameLang = (lang: string, target: string): boolean =>
   lang.replace('_', '-').toLowerCase() === target.toLowerCase();
 
 export class SpeechReader {
   private words: WordEntry[] = [];
+  private sequence: Occurrence[] = [];
+  private firstOccurrence: number[] = [];
   private speechText = '';
   private current = 0;
   private active: SpeechSynthesisUtterance | null = null;
@@ -132,28 +146,69 @@ export class SpeechReader {
         el.className = 'w';
         el.dataset.i = String(this.words.length);
         el.textContent = tok;
-        this.words.push({ el, spoken: speakable(tok), pause: false, start: 0 });
+        this.words.push({ el, spoken: speakable(tok) });
         frag.appendChild(el);
       }
       node.replaceWith(frag);
     }
 
-    this.words.forEach((w, i) => {
+    const headingEnds = this.words.map((w, i) => {
       const heading = w.el.closest(HEADING_SEL);
       const next = this.words[i + 1];
-      w.pause = heading !== null && (next === undefined || next.el.closest(HEADING_SEL) !== heading);
+      return heading !== null && (next === undefined || next.el.closest(HEADING_SEL) !== heading);
+    });
+
+    this.sequence = [];
+    const readTables = new Set<HTMLTableElement>();
+    this.words.forEach((w, i) => {
+      const table = w.el.closest('table');
+      if (!table) {
+        this.sequence.push({ word: i, pause: headingEnds[i] ? 'sentence' : null, start: 0 });
+        return;
+      }
+      if (readTables.has(table)) return;
+      readTables.add(table);
+      this.sequence.push(...this.tableOccurrences(table));
+    });
+
+    this.firstOccurrence = [];
+    this.sequence.forEach((occ, k) => {
+      if (this.firstOccurrence[occ.word] === undefined) this.firstOccurrence[occ.word] = k;
     });
 
     let pos = 0;
     let text = '';
-    for (const w of this.words) {
-      w.start = pos;
-      const sep = w.pause && !/[.!?:;,]$/.test(w.spoken.trim()) ? '. ' : ' ';
-      const piece = w.spoken + sep;
+    for (const occ of this.sequence) {
+      occ.start = pos;
+      const piece = this.words[occ.word].spoken + separatorAfter(this.words[occ.word].spoken, occ.pause);
       text += piece;
       pos += piece.length;
     }
     this.speechText = text;
+  }
+
+  private tableOccurrences(table: HTMLTableElement): Occurrence[] {
+    const headers = Array.from(table.tHead?.rows[0]?.cells ?? []);
+    const out: Occurrence[] = [];
+    for (const body of Array.from(table.tBodies)) {
+      for (const row of Array.from(body.rows)) {
+        Array.from(row.cells).forEach((cell, c) => {
+          const header = headers[c];
+          if (header) out.push(...this.cellOccurrences(header));
+          out.push(...this.cellOccurrences(cell));
+        });
+      }
+    }
+    return out;
+  }
+
+  private cellOccurrences(cell: HTMLElement): Occurrence[] {
+    const spans = Array.from(cell.querySelectorAll<HTMLElement>('.w'));
+    return spans.map((el, n) => ({
+      word: Number(el.dataset.i),
+      pause: n === spans.length - 1 ? 'clause' : null,
+      start: 0,
+    }));
   }
 
   private setPlaying(playing: boolean): void {
@@ -166,8 +221,9 @@ export class SpeechReader {
 
   private highlight(k: number): void {
     this.clearHighlight();
-    const w = this.words[k];
-    if (!w) return;
+    const occ = this.sequence[k];
+    if (!occ) return;
+    const w = this.words[occ.word];
     w.el.classList.add('hl');
     w.el.scrollIntoView({ block: 'nearest' });
   }
@@ -183,10 +239,10 @@ export class SpeechReader {
     const synth = this.synth;
     if (!synth) return;
     synth.cancel();
-    if (this.words.length === 0) return;
+    if (this.sequence.length === 0) return;
 
-    this.current = Math.max(0, Math.min(index, this.words.length - 1));
-    const base = this.words[this.current].start;
+    this.current = Math.max(0, Math.min(index, this.sequence.length - 1));
+    const base = this.sequence[this.current].start;
     const u = new SpeechSynthesisUtterance(this.speechText.slice(base));
     u.rate = Number(this.ui.speedRange.value);
     u.lang = this.browserLang;
@@ -197,7 +253,7 @@ export class SpeechReader {
       if (ev.name && ev.name !== 'word') return;
       const pos = base + ev.charIndex;
       let k = this.current;
-      while (k + 1 < this.words.length && this.words[k + 1].start <= pos) k++;
+      while (k + 1 < this.sequence.length && this.sequence[k + 1].start <= pos) k++;
       this.current = k;
       this.highlight(k);
     };
@@ -228,7 +284,7 @@ export class SpeechReader {
   private togglePlay(): void {
     const synth = this.synth;
     if (!synth) return;
-    if (this.words.length === 0) {
+    if (this.sequence.length === 0) {
       this.ui.statusEl.textContent = 'Render some markdown first';
       return;
     }
@@ -252,7 +308,7 @@ export class SpeechReader {
     if (target instanceof HTMLElement) {
       if (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
     }
-    if (!this.synth || this.words.length === 0) return;
+    if (!this.synth || this.sequence.length === 0) return;
     e.preventDefault();
     this.togglePlay();
   }
@@ -262,7 +318,7 @@ export class SpeechReader {
     if (!(target instanceof Element)) return;
     const w = target.closest<HTMLElement>('.w');
     if (!w || w.closest('summary')) return;
-    this.current = Number(w.dataset.i);
+    this.current = this.firstOccurrence[Number(w.dataset.i)] ?? 0;
     this.highlight(this.current);
     this.restart();
   }
