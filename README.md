@@ -36,6 +36,10 @@ Open `dist/index.html` in a browser after a build.
 
 Serve the `dist/` folder from any static host, such as GitHub Pages, Netlify, or an S3 bucket. The page makes no network requests and needs no server.
 
+## License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
+
 ## Project layout
 
 ```

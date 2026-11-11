@@ -2,6 +2,7 @@
   "name": "markdown_reader",
   "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "description": "Render markdown as collapsible sections with text-to-speech and word highlighting",
   "type": "module",
   "scripts": {
