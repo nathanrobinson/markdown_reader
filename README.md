@@ -8,6 +8,7 @@ A static page that renders markdown as collapsible sections and reads it aloud w
 
 - Headings nest into sections that expand and collapse. All sections start expanded.
 - Tables, fenced code, lists, blockquotes, links, and inline formatting.
+- ERD diagrams: a `mermaid` block whose first line is `erDiagram` renders as a diagram. The Mermaid library loads only when a page contains one. Other Mermaid diagram types show as code.
 - Play and pause, a voice dropdown limited to the browser's language, and a speed slider from 0.5x to 2x.
 - The current word is highlighted. Click any word to start reading from it.
 - Symbols such as `->` and `≥` are spoken by name, and "json" and "jsonb" are pronounced as words.
@@ -37,7 +38,7 @@ Tests live in `tests/` and run with [Vitest](https://vitest.dev) in a jsdom envi
 - `speech.test.ts`: word wrapping, play and pause, the space bar, word selection, voice and speed controls, and pronunciation rules. Speech synthesis is replaced with a fake.
 - `themes.test.ts`: color token coverage and theme application.
 
-Open `dist/index.html` in a browser after a build.
+Serve `dist/` over HTTP to try the build locally, for example `python3 -m http.server -d dist 8000`, then open http://localhost:8000. Browsers block ES module scripts when a page is opened with `file://`.
 
 ## Deployment
 

@@ -175,3 +175,8 @@ tbody tr:nth-child(even) { background: var(--code); }
 
 .w { border-radius: 3px; cursor: pointer; }
 .w.hl { background: var(--accent); color: var(--bg); }
+
+.mermaid-block { overflow-x: auto; margin: .8em 0; text-align: center; }
+.mermaid-block:empty::before { content: "Rendering diagram..."; color: var(--muted); }
+.mermaid-block svg { max-width: 100%; height: auto; }
+.mermaid-block.error pre { color: var(--strong); text-align: left; white-space: pre-wrap; }

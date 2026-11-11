@@ -119,6 +119,7 @@ export class SpeechReader {
     while (walker.nextNode()) nodes.push(walker.currentNode as Text);
 
     for (const node of nodes) {
+      if (node.parentElement?.closest('.mermaid-block')) continue;
       const tokens = (node.textContent ?? '').split(/(\s+)/).filter(Boolean);
       if (!tokens.some(t => t.trim())) continue;
       const frag = document.createDocumentFragment();

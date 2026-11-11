@@ -32,6 +32,14 @@ const inline = (s: string): string => {
   return formatted.replace(/\u0000(\d+)\u0000/g, (_, i: string) => `<code>${esc(codes[Number(i)])}</code>`);
 };
 
+const isErDiagram = (source: string): boolean => {
+  const first = source
+    .split('\n')
+    .map(line => line.trim())
+    .find(line => line !== '' && !line.startsWith('%%'));
+  return first !== undefined && /^erDiagram\b/.test(first);
+};
+
 const splitRow = (line: string): string[] =>
   line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
 
@@ -68,8 +76,13 @@ const toBlocks = (text: string): Block[] => {
       i++;
       while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) code.push(lines[i++]);
       i++;
-      const cls = lang ? ` class="language-${esc(lang)}"` : '';
-      out.push({ kind: 'html', html: `<pre><code${cls}>${esc(code.join('\n'))}</code></pre>` });
+      const source = code.join('\n');
+      if (lang === 'mermaid' && isErDiagram(source)) {
+        out.push({ kind: 'html', html: `<div class="mermaid-block" data-source="${esc(source)}"></div>` });
+      } else {
+        const cls = lang ? ` class="language-${esc(lang)}"` : '';
+        out.push({ kind: 'html', html: `<pre><code${cls}>${esc(code.join('\n'))}</code></pre>` });
+      }
       continue;
     }
 

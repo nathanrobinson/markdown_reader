@@ -60,6 +60,18 @@ describe('markdownToHtml blocks', () => {
     );
   });
 
+  it('renders mermaid blocks as diagram placeholders with escaped source', () => {
+    expect(markdownToHtml('```mermaid\nerDiagram\n    a ||--o{ b : "x"\n```')).toBe(
+      '<div class="mermaid-block" data-source="erDiagram\n    a ||--o{ b : &quot;x&quot;"></div>'
+    );
+  });
+
+  it('keeps other mermaid diagram types as code', () => {
+    expect(markdownToHtml('```mermaid\nflowchart TD\n  A-->B\n```')).toBe(
+      '<pre><code class="language-mermaid">flowchart TD\n  A--&gt;B</code></pre>'
+    );
+  });
+
   it('renders unordered lists', () => {
     expect(markdownToHtml('- one\n- two')).toBe('<ul><li>one</li><li>two</li></ul>');
   });

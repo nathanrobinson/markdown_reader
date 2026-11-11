@@ -18,11 +18,14 @@ execFileSync(process.execPath, [vitestBin, 'run'], { cwd: root, stdio: 'inherit'
 await build({
   entryPoints: [path.join(root, 'src', 'main.ts')],
   bundle: true,
-  format: 'iife',
+  format: 'esm',
+  splitting: true,
   target: 'es2020',
   minify: true,
   sourcemap: true,
-  outfile: path.join(dist, 'app.js'),
+  outdir: dist,
+  entryNames: 'app',
+  chunkNames: 'chunks/[name]-[hash]',
 });
 
 cpSync(path.join(root, 'src', 'styles.css'), path.join(dist, 'styles.css'));

@@ -1,6 +1,7 @@
 import { markdownToHtml } from './markdown';
-import { DEFAULT_THEME, THEMES, applyTheme } from './themes';
+import { DEFAULT_THEME, THEMES, applyTheme, type Theme } from './themes';
 import { SpeechReader } from './speech';
+import { renderDiagrams } from './diagrams';
 
 const byId = <T extends HTMLElement>(id: string): T => {
   const node = document.getElementById(id);
@@ -18,7 +19,12 @@ for (const name of Object.keys(THEMES)) {
   const isDefault = name === DEFAULT_THEME;
   themeSelect.add(new Option(name, name, isDefault, isDefault));
 }
-themeSelect.addEventListener('change', () => applyTheme(themeSelect.value));
+const currentTheme = (): Theme => THEMES[themeSelect.value] ?? THEMES[DEFAULT_THEME];
+
+themeSelect.addEventListener('change', () => {
+  applyTheme(themeSelect.value);
+  void renderDiagrams(output, currentTheme());
+});
 applyTheme(DEFAULT_THEME);
 
 const reader = new SpeechReader(output, {
@@ -40,6 +46,7 @@ const renderMarkdown = (): void => {
   }
   output.innerHTML = markdownToHtml(text);
   reader.wrap();
+  void renderDiagrams(output, currentTheme());
   statusEl.textContent = `${text.split('\n').length} lines rendered`;
   window.scrollTo(0, 0);
 };
