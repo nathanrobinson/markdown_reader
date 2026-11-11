@@ -238,3 +238,28 @@ describe('SpeechReader voice and speed controls', () => {
     expect(lastUtterance(synth).voice?.voiceURI).toBe('uri-google');
   });
 });
+
+describe('SpeechReader tables', () => {
+  const TABLE = '| Name | Age |\n|---|---|\n| Ann | 3 |\n| Bob | 5 |';
+
+  it('reads each row as header then value, column by column', () => {
+    const { playBtn } = mount(TABLE);
+    playBtn.click();
+    expect(lastUtterance(synth).text).toContain('Name, Ann, Age, 3, Name, Bob, Age, 5');
+  });
+
+  it('pauses between a header and its value', () => {
+    const { playBtn } = mount('| Item | Price |\n|---|---|\n| Tea | 4 |');
+    playBtn.click();
+    expect(lastUtterance(synth).text).toContain('Item, Tea, Price, 4');
+  });
+
+  it('starts reading from a clicked body cell', () => {
+    const { out, playBtn } = mount(TABLE);
+    playBtn.click();
+    const bob = wordEls(out).find(el => el.textContent === 'Bob')!;
+    bob.click();
+    expect(highlightedText(out)).toBe('Bob');
+    expect(lastUtterance(synth).text.trim()).toMatch(/^Bob, Age, 5/);
+  });
+});
