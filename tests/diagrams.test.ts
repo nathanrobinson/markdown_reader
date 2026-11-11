@@ -91,6 +91,24 @@ describe('renderDiagrams canvas', () => {
     expect(readout(root)).not.toBe('100%');
   });
 
+  it('resizes the frame and viewport when the grip is dragged', async () => {
+    Element.prototype.setPointerCapture ??= () => {};
+    const root = makeRoot();
+    await renderDiagrams(root, theme);
+    const frame = root.querySelector<HTMLElement>('.mermaid-frame')!;
+    const viewport = root.querySelector<HTMLElement>('.mermaid-viewport')!;
+    const grip = root.querySelector<HTMLElement>('.mermaid-resize')!;
+
+    grip.dispatchEvent(new MouseEvent('pointerdown', { clientX: 100, clientY: 100, bubbles: true }));
+    grip.dispatchEvent(new MouseEvent('pointermove', { clientX: 600, clientY: 400, bubbles: true }));
+    expect(frame.style.getPropertyValue('--frame-width')).toBe('500px');
+    expect(viewport.style.height).toBe('300px');
+
+    grip.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+    grip.dispatchEvent(new MouseEvent('pointermove', { clientX: 900, clientY: 900, bubbles: true }));
+    expect(frame.style.getPropertyValue('--frame-width')).toBe('500px');
+  });
+
   it('shows an error in place of the canvas when rendering fails', async () => {
     const mermaid = (await import('mermaid')).default;
     vi.mocked(mermaid.render).mockRejectedValueOnce(new Error('Parse error'));

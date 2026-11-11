@@ -50,7 +50,13 @@ const MAX_ZOOM = 4;
 const BUTTON_ZOOM_FACTOR = 1.25;
 const WHEEL_ZOOM_SENSITIVITY = 0.01;
 
-const clampZoom = (zoom: number): number => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
+const MIN_FRAME_WIDTH = 240;
+const MIN_FRAME_HEIGHT = 160;
+const MAX_FRAME_HEIGHT_RATIO = 0.9;
+const PAGE_GUTTER = 32;
+
+const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
+const clampZoom = (zoom: number): number => clamp(zoom, MIN_ZOOM, MAX_ZOOM);
 
 const makeButton = (label: string, title: string): HTMLButtonElement => {
   const button = document.createElement('button');
@@ -138,8 +144,45 @@ const mountCanvas = (block: HTMLElement, svg: string): void => {
   viewport.addEventListener('pointerup', endDrag);
   viewport.addEventListener('pointercancel', endDrag);
 
+  const frame = document.createElement('div');
+  frame.className = 'mermaid-frame';
+  const grip = document.createElement('div');
+  grip.className = 'mermaid-resize';
+  grip.title = 'Drag to resize';
+  grip.setAttribute('aria-label', 'Resize diagram');
+  frame.append(viewport, grip);
+
+  let resize: { x: number; y: number; width: number; height: number } | null = null;
+
+  grip.addEventListener('pointerdown', (event: PointerEvent) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    resize = {
+      x: event.clientX,
+      y: event.clientY,
+      width: frame.getBoundingClientRect().width,
+      height: viewport.getBoundingClientRect().height,
+    };
+    grip.setPointerCapture(event.pointerId);
+  });
+
+  grip.addEventListener('pointermove', (event: PointerEvent) => {
+    if (!resize) return;
+    const width = clamp(resize.width + event.clientX - resize.x, MIN_FRAME_WIDTH, window.innerWidth - PAGE_GUTTER);
+    const height = clamp(resize.height + event.clientY - resize.y, MIN_FRAME_HEIGHT, window.innerHeight * MAX_FRAME_HEIGHT_RATIO);
+    frame.style.setProperty('--frame-width', `${width}px`);
+    viewport.style.height = `${height}px`;
+    viewport.style.maxHeight = 'none';
+  });
+
+  const endResize = (): void => {
+    resize = null;
+  };
+  grip.addEventListener('pointerup', endResize);
+  grip.addEventListener('pointercancel', endResize);
+
   readout.textContent = '100%';
-  block.replaceChildren(toolbar, viewport);
+  block.replaceChildren(toolbar, frame);
 };
 
 export const renderDiagrams = async (root: HTMLElement, theme: Theme): Promise<void> => {

@@ -185,6 +185,13 @@ tbody tr:nth-child(even) { background: var(--code); }
 .mermaid-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
 .mermaid-zoom-readout { min-width: 3.5em; text-align: center; font-size: .85em; color: var(--muted); font-variant-numeric: tabular-nums; }
 
+.mermaid-frame {
+  --frame-width-fit: min(var(--frame-width, 100%), calc(100vw - 32px));
+  position: relative;
+  width: var(--frame-width-fit);
+  margin-left: calc((100% - var(--frame-width-fit)) / 2);
+}
+.mermaid-resize { position: absolute; right: -4px; bottom: -4px; width: 16px; height: 16px; cursor: nwse-resize; touch-action: none; background: linear-gradient(135deg, transparent 0 45%, var(--muted) 45% 52%, transparent 52% 66%, var(--muted) 66% 73%, transparent 73%); }
 .mermaid-viewport { overflow: auto; max-height: 70vh; border: 1px solid var(--border); border-radius: 3px; background: var(--bg); cursor: grab; }
 .mermaid-viewport.dragging { cursor: grabbing; user-select: none; }
 .mermaid-content { margin: 0 auto; width: 100%; }
