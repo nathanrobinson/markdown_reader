@@ -1,0 +1,177 @@
+:root {
+  color-scheme: dark;
+  --bg: #282a36;
+  --fg: #f8f8f2;
+  --muted: #6272a4;
+  --border: #44475a;
+  --code: #343746;
+  --link: #8be9fd;
+  --accent: #bd93f9;
+  --strong: #ff79c6;
+  --codeText: #50fa7b;
+}
+
+html { background: var(--bg); }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.bar .name { color: var(--muted); font-size: 14px; }
+
+.bar .controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar label { color: var(--muted); font-size: 14px; }
+
+select, button {
+  background: var(--code);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover, select:hover { border-color: var(--accent); }
+button:disabled, select:disabled { opacity: .5; cursor: default; }
+
+input[type=range] {
+  accent-color: var(--accent);
+  width: 120px;
+  cursor: pointer;
+}
+
+#speed-label { color: var(--muted); font-size: 14px; min-width: 2.5em; }
+
+.input-panel { max-width: 860px; margin: 0 auto; padding: 24px 16px 0; }
+
+.input-panel textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 140px;
+  background: var(--code);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  resize: vertical;
+}
+
+.input-panel .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+main:empty::before { content: "Paste markdown above and press Render."; color: var(--muted); }
+
+a { color: var(--link); }
+h1, h2, h3, h4, h5, h6 { color: var(--accent); }
+strong { color: var(--strong); }
+
+details.sec { margin: .35em 0; }
+
+summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  gap: .5em;
+}
+
+summary::-webkit-details-marker { display: none; }
+
+summary::before {
+  content: "\25BE";
+  color: var(--muted);
+  display: inline-block;
+  transition: transform .15s;
+}
+
+details.sec:not([open]) > summary::before { transform: rotate(-90deg); }
+
+summary h1, summary h2, summary h3, summary h4, summary h5, summary h6 { margin: .6em 0 .2em; }
+summary h1 { font-size: 2em; }
+summary h2 { font-size: 1.5em; }
+summary h3 { font-size: 1.25em; }
+summary h4 { font-size: 1em; }
+summary h5 { font-size: .875em; }
+summary h6 { font-size: .85em; color: var(--muted); }
+
+.sec-body {
+  padding-left: 1.1em;
+  margin-left: .3em;
+  border-left: 1px solid var(--border);
+}
+
+p, ul, ol, pre, blockquote { margin: .8em 0; }
+li::marker { color: var(--muted); }
+
+pre {
+  background: var(--code);
+  padding: 12px;
+  overflow: auto;
+  border-radius: 6px;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .9em;
+  color: var(--codeText);
+}
+
+pre code { color: var(--fg); }
+
+:not(pre) > code {
+  background: var(--code);
+  padding: .15em .35em;
+  border-radius: 4px;
+}
+
+blockquote {
+  padding: 0 1em;
+  color: var(--muted);
+  border-left: .25em solid var(--muted);
+  margin-left: 0;
+}
+
+hr { border: 0; border-top: 1px solid var(--border); margin: 1.5em 0; }
+img { max-width: 100%; }
+
+.table-wrap { overflow-x: auto; margin: .8em 0; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: var(--code); color: var(--accent); }
+tbody tr:nth-child(even) { background: var(--code); }
+
+.w { border-radius: 3px; cursor: pointer; }
+.w.hl { background: var(--accent); color: var(--bg); }

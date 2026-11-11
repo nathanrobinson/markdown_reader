@@ -1,0 +1,15 @@
+{
+  "name": "markdown_reader",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Render markdown as collapsible sections with text-to-speech and word highlighting",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3"
+  }
+}
