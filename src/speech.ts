@@ -87,7 +87,11 @@ export class SpeechReader {
     });
     ui.speedRange.addEventListener('change', () => this.restart());
     ui.voiceSelect.addEventListener('change', () => this.restart());
-    ui.playBtn.addEventListener('click', () => this.togglePlay());
+    ui.playBtn.addEventListener('click', e => {
+      this.togglePlay();
+      if (e.detail > 0) ui.playBtn.blur();
+    });
+    document.addEventListener('keydown', e => this.onSpaceKey(e));
     container.addEventListener('click', e => this.onWordClick(e));
 
     if (this.synth) {
@@ -239,6 +243,17 @@ export class SpeechReader {
     }
     this.speakFrom(this.current);
     this.setPlaying(true);
+  }
+
+  private onSpaceKey(e: KeyboardEvent): void {
+    if (e.key !== ' ' || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+    const target = e.target;
+    if (target instanceof HTMLElement) {
+      if (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
+    }
+    if (!this.synth || this.words.length === 0) return;
+    e.preventDefault();
+    this.togglePlay();
   }
 
   private onWordClick(e: Event): void {
