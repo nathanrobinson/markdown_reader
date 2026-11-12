@@ -80,6 +80,11 @@ describe('speakable', () => {
     expect(speakable('jsons')).toBe('jasons');
   });
 
+  it('reads parentheses aloud', () => {
+    expect(speakable('(x)')).toBe('open paren x close paren');
+    expect(speakable('max(a,')).toBe('max open paren a,');
+  });
+
   it('reads percent signs', () => {
     expect(speakable('50%').trim()).toBe('50 percent');
   });

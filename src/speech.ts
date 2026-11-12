@@ -50,6 +50,8 @@ const SYMBOL_RULES: Array<[RegExp, string]> = [
   [/®/g, ' registered '],
   [/°/g, ' degrees '],
   [/%/g, ' percent '],
+  [/\(/g, ' open paren '],
+  [/\)/g, ' close paren '],
   [/&/g, ' and '],
   [/…/g, '. '],
   [/—/g, ', '],
