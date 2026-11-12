@@ -108,6 +108,16 @@ describe('markdownToHtml tables', () => {
     expect(markdownToHtml('| a | b |\n|---|---|\n| only |')).toContain('<tr><td>only</td><td></td></tr>');
   });
 
+  it('renders an escaped pipe inside a cell as part of the cell text', () => {
+    const html = markdownToHtml('| expr | result |\n|---|---|\n| a \\| b | yes |');
+    expect(html).toContain('<tr><td>a | b</td><td>yes</td></tr>');
+  });
+
+  it('keeps an escaped pipe at the end of a row inside the last cell', () => {
+    const html = markdownToHtml('| a | b |\n|---|---|\n| x | y \\|');
+    expect(html).toContain('<tr><td>x</td><td>y |</td></tr>');
+  });
+
   it('does not treat a single pipe-free line as a table', () => {
     expect(markdownToHtml('just text')).not.toContain('<table>');
   });

@@ -41,7 +41,12 @@ const isErDiagram = (source: string): boolean => {
 };
 
 const splitRow = (line: string): string[] =>
-  line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+  line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/(^|[^\\])\|$/, '$1')
+    .split(/(?<!\\)\|/)
+    .map(c => c.trim().replace(/\\\|/g, '|'));
 
 const alignOf = (cell: string): string => {
   const left = cell.startsWith(':');
